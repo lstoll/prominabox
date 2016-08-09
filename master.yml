@@ -1,0 +1,23 @@
+global:
+  scrape_interval:     15s # By default, scrape targets every 15 seconds.
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+    monitor: 'master1'
+
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: spaces
+    honor_labels: true
+    metrics_path: /federate
+    #params:
+    #  match[]:
+    #    - '{__name__=~"^slave:.*"}'   # Request all slave-level time series
+    params:
+      'match[]':
+        - '{job="spacet"}'
+        #- '{__name__=~"^spacet:"}'
+    static_configs:
+      - targets:
+        - space1:9090
+        - space2:9090

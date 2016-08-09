@@ -1,0 +1,72 @@
+version: '2'
+services:
+  # Prom servers
+  prommaster:
+    image: prom/prometheus
+    volumes:
+      - "./master.yml:/etc/prometheus/prometheus.yml"
+    ports:
+      - "9090:9090"
+    links:
+      - space1
+      - space2
+  space1:
+    image: prom/prometheus
+    volumes:
+      - "./space1.yml:/etc/prometheus/prometheus.yml"
+    ports:
+      - "9091:9090"
+    expose:
+      - 9090
+    links:
+      - space1t1
+      - space1t2
+  space2:
+    image: prom/prometheus
+    volumes:
+      - "./space2.yml:/etc/prometheus/prometheus.yml"
+    ports:
+      - "9092:9090"
+    expose:
+      - 9090
+    links:
+      - space2t1
+      - space2t2
+  # Random (https://github.com/prometheus/client_golang/blob/master/examples/random/main.go) targets
+  space1t1:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.randomtarget
+    expose:
+      - 8080
+  space1t2:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.randomtarget
+    expose:
+      - 8080
+  space2t1:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.randomtarget
+    expose:
+      - 8080
+  space2t2:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.randomtarget
+    expose:
+      - 8080
+  # Dashboards
+  grafana:
+    image: grafana/grafana
+    # volumes:
+    #   - "./grafana_db:/var/lib/grafana"
+    ports:
+      - "3000:3000"
+    # Not needed, grafana is just js direct
+    # add http://127.0.0.1:9090
+    #links:
+    #  - prometheus
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
